@@ -18,4 +18,4 @@ def to_excel(dataframe, output_file):
 
 if __name__ == '__main__':
     df = to_df('new.csv')
-    to_excel(df, 'new.xlsx')
+    #to_excel(df, 'new.xlsx') usually freezes pc
