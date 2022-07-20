@@ -10,11 +10,12 @@ if __name__ == '__main__':
               'HOE', 'COO', 'LLP', 'SNP', 'LAG', 'KLK', 'LTY', 'QBL', 'EAS', 'PRS', 'DVC', 'ETB']
 
     with open('new.csv', 'w', newline='', encoding='utf-8') as output_file:
-        writer = csv.writer(output_file)
+        writer = csv.writer(output_file, delimiter=';')
         writer.writerow(header)
+        edited_tags = ['TNR', 'VTN', 'NTN', 'WTN']
         cur_string = []
-        important_check = True # for useless tags without SET tag
-        for _, elem in tqdm(iterparse(file_path, events=("start",))):
+        important_check = True  # for useless tags without SET tag
+        for _, elem in tqdm(iterparse(file_path, events=("end",)), total=50804760): # _ for event
             if important_check and elem.tag != 'SET':
                 continue
             elif important_check and elem.tag == 'SET':
@@ -23,5 +24,17 @@ if __name__ == '__main__':
             if elem.tag == 'SET':
                 writer.writerow(cur_string)
                 cur_string = []
+            elif elem.tag in edited_tags:
+                cur_text = elem.text
+                if cur_text and (cur_text.startswith('A') or cur_text.startswith('W')):
+                    new_text = cur_text[0] + cur_text[6:9] + cur_text[1:4] + cur_text[11:13] + cur_text[4:6] + cur_text[9:11] + cur_text[13:15] + cur_text[15:]
+                    cur_string.append(new_text.strip())
+                elif cur_text and cur_text.startswith('H'):
+                    new_text = cur_text[0] + cur_text[9:11] + cur_text[6:9] + cur_text[1:4] + cur_text[11:13] + cur_text[4:6] + cur_text[13:15] + cur_text[15:]
+                    cur_string.append(new_text.strip())
+                elif not cur_text:
+                    cur_string.append('NULL')
+                else:
+                    cur_string.append(elem.text)
             else:
                 cur_string.append(elem.text)
